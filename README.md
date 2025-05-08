@@ -87,19 +87,9 @@ mongodb_ai_playground/
 
 ---
 
-
-
-## Contributing
-
-Contributions, issues, and feature requests are welcome! Please open an issue or PR on [GitHub](https://github.com/mongodb-developer/mongodb-ai-playground).
-
----
-
 ## License
 
-All rights reserved for now. See [LICENSE](LICENSE).
-
----
+This project is licensed under the [MIT License](LICENSE).
 
 ## Acknowledgments
 
@@ -109,8 +99,9 @@ All rights reserved for now. See [LICENSE](LICENSE).
 - [PyMongo](https://pymongo.readthedocs.io/)
 - [MongoDB Atlas](https://www.mongodb.com/atlas)
 
----
+## Additional Resources
 
-## Maintainer
-
-MongoDB Developer Relations (<thibaut.gourdel@mongodb.com>)
+* [GenAI Showcase](https://github.com/mongodb-developer/GenAI-Showcase)
+* [AI Learning Hub](https://www.mongodb.com/resources/use-cases/artificial-intelligence?utm_campaign=ai_learning_hub&utm_source=github&utm_medium=referral)
+* [GenAI Community Forum](https://www.mongodb.com/community/forums/c/generative-ai/162)
+* [Tutorials and code examples from our official docs](https://github.com/mongodb/docs-notebooks)
