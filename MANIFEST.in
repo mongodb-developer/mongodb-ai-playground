@@ -1,0 +1,6 @@
+# Include all static files inside the package
+recursive-include mongodb_ai_playground/static *
+
+# Include README, LICENSE, and other important documentation
+include README.md
+include LICENSE

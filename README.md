@@ -1,1 +1,1 @@
-# mongodb-ai-playground
+# mongodb ai playground

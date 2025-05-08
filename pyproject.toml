@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mongodb-ai-playground"
+version = "0.1.0"
+description = "A Jupyter widget for testing MongoDB AI capabilities such as RAG."
+authors = [{ name = "MongoDB Developers", email = "thibaut.gourdel@mongodb.com" }]
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.7"
+dependencies = [
+    "anywidget",
+    "ipywidgets",
+    "langchain",
+    "langchain-mongodb",
+    "pymongo"
+]
+
+[tool.setuptools]
+packages = ["mongodb_ai_playground"]
+
+[tool.setuptools.package-data]
+"mongodb_ai_playground" = ["index.js", "index.css"]  # adjust if stored in a "static/" subfolder
+
+[project.urls]
+Homepage = "https://github.com/mongodb-developer/mongodb-ai-playground"
+Repository = "https://github.com/mongodb-developer/mongodb-ai-playground"
