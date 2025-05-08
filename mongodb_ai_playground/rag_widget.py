@@ -13,8 +13,8 @@ from langchain_core.runnables import RunnablePassthrough
 current_directory = pathlib.Path().resolve()
 
 class MongoDBRAGPlayground(anywidget.AnyWidget):
-    _esm = current_directory / "index.js"
-    _css = current_directory / "index.css"
+    _esm = pathlib.Path(__file__).parent / "index.js"
+    _css = pathlib.Path(__file__).parent / "index.css"
 
     # Which step is selected in the UI (1=Chunking, 2=Embedding, 3=RAG)
     current_step = traitlets.Int(1).tag(sync=True)

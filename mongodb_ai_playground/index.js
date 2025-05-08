@@ -160,7 +160,7 @@ function render({ model, el }) {
 
   // Pagination Controls
   const paginationDiv = createElement("div", { id: "pagination-controls" });
-  const prevBtn = createButton("Previous Page");
+  const prevBtn = createButton("Previous Page", "action-button");
   prevBtn.addEventListener("click", () => {
     const currentIdx = model.get("current_doc_index") || 0;
     if (currentIdx > 0) {
@@ -168,7 +168,7 @@ function render({ model, el }) {
       model.save_changes();
     }
   });
-  const nextBtn = createButton("Next Page");
+  const nextBtn = createButton("Next Page", "action-button");
   nextBtn.addEventListener("click", () => {
     const currentIdx = model.get("current_doc_index") || 0;
     model.set("current_doc_index", currentIdx + 1);
@@ -183,6 +183,28 @@ function render({ model, el }) {
     const embeddingContainer = createElement("div", { style: { display: "flex", gap: "2rem" } });
     const chunkListDiv = createElement("div", { style: { flex: "1" }, innerHTML: "<h4>Chunks</h4>" });
     embeddingContainer.appendChild(chunkListDiv);
+    // Pagination controls for embedding tab
+    const embeddingPaginationDiv = createElement("div", { id: "embedding-pagination-controls" });
+    const embeddingPrevBtn = createButton("Previous Page", "action-button");
+    embeddingPrevBtn.addEventListener("click", () => {
+      const currentIdx = model.get("current_doc_index") || 0;
+      if (currentIdx > 0) {
+        model.set("current_doc_index", currentIdx - 1);
+        model.save_changes();
+      }
+    });
+    const embeddingNextBtn = createButton("Next Page", "action-button");
+    embeddingNextBtn.addEventListener("click", () => {
+      const currentIdx = model.get("current_doc_index") || 0;
+      model.set("current_doc_index", currentIdx + 1);
+      model.save_changes();
+    });
+    embeddingPaginationDiv.append(embeddingPrevBtn, embeddingNextBtn);
+    chunkListDiv.appendChild(embeddingPaginationDiv);
+    // Ensure the chunk list updates with page changes
+    model.on("change:current_doc_index", renderChunkListForEmbedding);
+    // Initial render
+    renderChunkListForEmbedding();
     
     // Create a header container for "Documents in MongoDB" and the Load button side by side
     const docListColumn = createElement("div", { style: { flex: "1" } });
@@ -190,7 +212,7 @@ function render({ model, el }) {
       style: { display: "flex", alignItems: "center", justifyContent: "space-between" } 
     });
     const docsHeader = createElement("h4", { innerHTML: "Documents in MongoDB" });
-    const loadButton = createButton("Load into MongoDB");
+    const loadButton = createButton("Load into MongoDB", "action-button");
     loadButton.id = "loadButton";
     loadButton.addEventListener("click", () => {
       model.set("command", "load_into_mongo");
@@ -238,7 +260,7 @@ function render({ model, el }) {
     model.save_changes();
   });
   questionContainer.appendChild(ragQueryArea);
-  const ragSendBtn = createButton("Send");
+  const ragSendBtn = createButton("Send", "action-button");
   questionContainer.appendChild(ragSendBtn);
 
   // Answer Display
@@ -268,7 +290,7 @@ function render({ model, el }) {
   const promptDiv = createElement("div", { id: "rag-prompt" });
   finalPromptContainer.appendChild(promptDiv);
 
-  rightCol.appendChild(createElement("div", { id: "rag-results" }));
+  rightCol.appendChild(createElement("div", { id: "rag-results"}));
   leftCol.append(questionContainer, answerContainer, promptTemplateContainer, finalPromptContainer);
   ragMainContainer.append(leftCol, rightCol);
   qaSection.appendChild(ragMainContainer);
@@ -346,18 +368,18 @@ function render({ model, el }) {
   }
 
   function renderChunkListForEmbedding() {
-    let embedRows = model.get("embeddings_table") || model.get("chunks_table") || [];
-    if (!embedRows.length) {
-      chunkListDiv.innerHTML = "<h4>Chunks</h4><p>No chunks to display.</p>";
+    let allChunks = model.get("embeddings_table") || model.get("chunks_table") || [];
+    const currentPageIndex = model.get("current_doc_index");
+    const filteredChunks = allChunks.filter((row) => row.page_index === currentPageIndex);
+    if (!filteredChunks.length) {
+      chunkListDiv.innerHTML = "<h4>Chunks</h4><p>No chunks to display for this page.</p>";
       return;
     }
     let html = "<h4>Chunks</h4><div class='chunk-card-container'>";
-    embedRows.forEach((row, idx) => {
-      const pageInfo = row.page_index !== undefined ? `Page ${row.page_index}, ` : "";
-      const chunkIdx = row.chunk_index !== undefined ? row.chunk_index : idx;
+    filteredChunks.forEach((row) => {
       html += `
         <div class="chunk-card">
-          <span class="chunk-tag">${pageInfo}Chunk ${chunkIdx}</span>
+          <span class="chunk-tag">Page ${row.page_index}, Chunk ${row.chunk_index}</span>
           <div class="chunk-text">${row.chunk_text}</div>
         </div>
       `;

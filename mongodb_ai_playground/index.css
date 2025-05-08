@@ -52,6 +52,35 @@
   border-bottom-color: #006400; /* Dark green bottom border for active tab */
 }
 
+.action-button {
+  /* Base button styles */
+  background: #F9FBFA;
+  border: 1px solid #889397;
+  color: #001E2B;
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  height: 36px;
+  line-height: 34px;
+  padding: 0 12px;
+  text-transform: capitalize;
+  cursor: pointer;
+  transition: all 120ms ease;
+  text-decoration: none;
+  outline: none;
+  font-family: "Euclid Circular A", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  border-radius: 6px !important;
+}
+
+.action-button:hover:not([disabled]),
+.action-button:active:not([disabled]) {
+  /* Hover / active state */
+  color: #001E2B;
+  background: #F9FBFA;
+  box-shadow: 0 0 0 3px #E8EDEB;
+  outline: 0;
+}
+
 /* Labels and inputs */
 label {
   display: block;
@@ -172,10 +201,20 @@ textarea:focus {
   overflow-y: auto;
 }
 
+#doc-list-container {
+  flex: 1;
+  overflow-y: auto;
+  height: 500px;
+  gap: 1rem;
+  padding: 0rem;
+}
+
 /* The container for all chunk "cards" */
 .chunk-card-container {
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  height: 500px;
   gap: 1rem;
   padding: 0rem;
 }
