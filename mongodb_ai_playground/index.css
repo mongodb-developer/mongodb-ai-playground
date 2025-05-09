@@ -1,5 +1,23 @@
 /* index.css */
 
+
+#mongodb-ai-playground {
+  height: 770px;           /* or whatever fixed height you want */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;        /* prevent accidental overflow */
+}
+
+#mongodb-ai-playground > .sub-tabs-nav,
+#mongodb-ai-playground > .steps-nav {
+  flex: 0 0 auto;         /* tabs/nav bars keep their natural height */
+}
+
+#mongodb-ai-playground > div:not(.sub-tabs-nav):not(.steps-nav) {
+  flex: 1 1 auto;         /* the content area fills the remaining height */
+  overflow: auto;         /* scroll if content is too tall */
+}
+
 /* Basic container styling */
 #chunking-section > div:first-child {
   /* Adjust as needed */
@@ -11,7 +29,7 @@
 #rag-section {
   display: flex;
   gap: 2rem;
-  height: 500px; /* Example fixed height */
+  /*height: 500px; /* Example fixed height */
   font-family: 'Euclid Circular A', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
@@ -192,6 +210,7 @@ textarea:focus {
   border-radius: 8px;
   padding: 1rem;
   background: #fff;
+  height: 450px;
   white-space: pre-wrap;
 }
 
@@ -305,4 +324,15 @@ textarea:focus {
 
 .sub-tabs-nav {
   margin-bottom: 1rem;
+}
+
+#final-prompt-container {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  max-height: 300px;
+  background: #fff;
+  white-space: pre-wrap;
 }

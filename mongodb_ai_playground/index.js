@@ -62,6 +62,8 @@ function createSelectControl({ labelText, options, selectedValue, onChange }) {
 
 function render({ model, el }) {
   // Clear container
+  el.id = "mongodb-ai-playground";
+
   el.innerHTML = "";
 
   //------------------------------------------------------------
@@ -177,82 +179,85 @@ function render({ model, el }) {
   paginationDiv.append(prevBtn, nextBtn);
   chunkingSection.appendChild(paginationDiv);
 
-    // Embedding & Ingestion Section (Updated)
-    const embeddingSection = createSection("embedding-section", "none");
-    ragContainer.appendChild(embeddingSection);
-    const embeddingContainer = createElement("div", { style: { display: "flex", gap: "2rem" } });
-    const chunkListDiv = createElement("div", { style: { flex: "1" }, innerHTML: "<h4>Chunks</h4>" });
-    embeddingContainer.appendChild(chunkListDiv);
-    // Pagination controls for embedding tab
-    const embeddingPaginationDiv = createElement("div", { id: "embedding-pagination-controls" });
-    const embeddingPrevBtn = createButton("Previous Page", "action-button");
-    embeddingPrevBtn.addEventListener("click", () => {
-      const currentIdx = model.get("current_doc_index") || 0;
-      if (currentIdx > 0) {
-        model.set("current_doc_index", currentIdx - 1);
-        model.save_changes();
+  // Embedding & Ingestion Section (Updated)
+  const embeddingSection = createSection("embedding-section", "none");
+  ragContainer.appendChild(embeddingSection);
+  const embeddingContainer = createElement("div", { style: { display: "flex", gap: "2rem" } });
+  const chunkListDiv = createElement("div", { style: { flex: "1" }, innerHTML: "<h4>Chunks</h4>" });
+  embeddingContainer.appendChild(chunkListDiv);
+  // Pagination controls for embedding tab
+  const embeddingPaginationDiv = createElement("div", { id: "embedding-pagination-controls" });
+  const embeddingPrevBtn = createButton("Previous Page", "action-button");
+  embeddingPrevBtn.addEventListener("click", () => {
+    const currentIdx = model.get("current_doc_index") || 0;
+    if (currentIdx > 0) {
+      model.set("current_doc_index", currentIdx - 1);
+      model.save_changes();
+    }
+  });
+  const embeddingNextBtn = createButton("Next Page", "action-button");
+  embeddingNextBtn.addEventListener("click", () => {
+    const currentIdx = model.get("current_doc_index") || 0;
+    model.set("current_doc_index", currentIdx + 1);
+    model.save_changes();
+  });
+  embeddingPaginationDiv.append(embeddingPrevBtn, embeddingNextBtn);
+  chunkListDiv.appendChild(embeddingPaginationDiv);
+  // Ensure the chunk list updates with page changes
+  model.on("change:current_doc_index", renderChunkListForEmbedding);
+  // Initial render
+  renderChunkListForEmbedding();
+
+  // Create a header container for "Documents in MongoDB" and the Load button side by side
+  const docListColumn = createElement("div", { style: { flex: "1" } });
+  const docHeaderContainer = createElement("div", {
+    style: { display: "flex", alignItems: "center", justifyContent: "space-between" }
+  });
+  const docsHeader = createElement("h4", { innerHTML: "Documents in MongoDB" });
+  const loadButton = createButton("Load into MongoDB", "action-button");
+  loadButton.id = "loadButton";
+  loadButton.addEventListener("click", () => {
+    model.set("command", "load_into_mongo");
+    model.save_changes();
+    // Poll until mongo_docs_table is populated, then render using the latest container reference
+    const checkDocsLoaded = setInterval(() => {
+      const docs = model.get("mongo_docs_table");
+      if (docs && docs.length > 0) {
+        clearInterval(checkDocsLoaded);
+        renderMongoDocsList();
       }
-    });
-    const embeddingNextBtn = createButton("Next Page", "action-button");
-    embeddingNextBtn.addEventListener("click", () => {
-      const currentIdx = model.get("current_doc_index") || 0;
-      model.set("current_doc_index", currentIdx + 1);
-      model.save_changes();
-    });
-    embeddingPaginationDiv.append(embeddingPrevBtn, embeddingNextBtn);
-    chunkListDiv.appendChild(embeddingPaginationDiv);
-    // Ensure the chunk list updates with page changes
-    model.on("change:current_doc_index", renderChunkListForEmbedding);
-    // Initial render
-    renderChunkListForEmbedding();
-    
-    // Create a header container for "Documents in MongoDB" and the Load button side by side
-    const docListColumn = createElement("div", { style: { flex: "1" } });
-    const docHeaderContainer = createElement("div", { 
-      style: { display: "flex", alignItems: "center", justifyContent: "space-between" } 
-    });
-    const docsHeader = createElement("h4", { innerHTML: "Documents in MongoDB" });
-    const loadButton = createButton("Load into MongoDB", "action-button");
-    loadButton.id = "loadButton";
-    loadButton.addEventListener("click", () => {
-      model.set("command", "load_into_mongo");
-      model.save_changes();
-      // Poll until mongo_docs_table is populated, then render using the latest container reference
-      const checkDocsLoaded = setInterval(() => {
-        const docs = model.get("mongo_docs_table");
-        if (docs && docs.length > 0) {
-          clearInterval(checkDocsLoaded);
-          renderMongoDocsList();
-        }
-      }, 500);
-    });
-    docHeaderContainer.append(docsHeader, loadButton);
-    docListColumn.appendChild(docHeaderContainer);
-    
-    // Container for MongoDB documents list
-    const docListDiv = createElement("div", { id: "doc-list-container" });
-    docListColumn.appendChild(docListDiv);
-    embeddingContainer.appendChild(docListColumn);
-    embeddingSection.appendChild(embeddingContainer);
-    
+    }, 500);
+  });
+  docHeaderContainer.append(docsHeader, loadButton);
+  docListColumn.appendChild(docHeaderContainer);
+
+  // Container for MongoDB documents list
+  const docListDiv = createElement("div", { id: "doc-list-container" });
+  docListColumn.appendChild(docListDiv);
+  embeddingContainer.appendChild(docListColumn);
+  embeddingSection.appendChild(embeddingContainer);
+
   // Question Answering Section
   const qaSection = createSection("rag-section", "none");
   ragContainer.appendChild(qaSection);
-  const ragTitle = createElement("h3", { innerHTML: "Question Answering" });
-  qaSection.appendChild(ragTitle);
+  // create the flex container and force its children to align at the top
   const ragMainContainer = createElement("div", {
-    style: { display: "flex", gap: "2rem", marginTop: "1rem" },
+    style: { display: "flex", alignItems: "flex-start", gap: "2rem"},
   });
+
   const leftCol = createElement("div", {
-    style: { flex: "1", display: "flex", flexDirection: "column", gap: "1rem" },
+    style: { flex: "1", display: "flex", flexDirection: "column" },
   });
+  // move the QA heading inside the left column so it sits level with the right column's header
+  const ragTitle = createElement("h4", { innerHTML: "Question" });
+  leftCol.appendChild(ragTitle);
   const rightCol = createElement("div", { style: { flex: "1" } });
 
   // Question Input & Send Button
   const questionContainer = createElement("div");
   const ragQueryArea = createElement("textarea", {
     placeholder: "Ask your question here...",
-    rows: "3",
+    rows: "4",
     style: { width: "100%" },
   });
   ragQueryArea.addEventListener("input", () => {
@@ -285,13 +290,15 @@ function render({ model, el }) {
   });
   promptTemplateContainer.appendChild(promptEditor);
 
-  // Final Prompt Display
+  // Final Prompt Display (container only)
   const finalPromptContainer = createElement("div");
+  finalPromptContainer.id = "final-prompt-container";
   const promptDiv = createElement("div", { id: "rag-prompt" });
   finalPromptContainer.appendChild(promptDiv);
 
-  rightCol.appendChild(createElement("div", { id: "rag-results"}));
-  leftCol.append(questionContainer, answerContainer, promptTemplateContainer, finalPromptContainer);
+  rightCol.appendChild(createElement("div", { id: "rag-results" }));
+  const finalPromptHeader = createElement("h4", { innerHTML: "Final Prompt Used" });
+  leftCol.append(questionContainer, answerContainer, promptTemplateContainer, finalPromptHeader, finalPromptContainer);
   ragMainContainer.append(leftCol, rightCol);
   qaSection.appendChild(ragMainContainer);
 
@@ -388,29 +395,29 @@ function render({ model, el }) {
     chunkListDiv.innerHTML = html;
   }
 
-    // Update renderMongoDocsList to remove the header (since it’s now static above)
-    function renderMongoDocsList() {
-      const docListDiv = document.getElementById("doc-list-container");
-      if (!docListDiv) return;
-      const mongoDocs = model.get("mongo_docs_table") || [];
-      if (!mongoDocs.length) {
-        docListDiv.innerHTML = "<p>No documents loaded yet.</p>";
-        return;
-      }
-      let html = "<div class='doc-card-container'>";
-      mongoDocs.forEach((doc) => {
-        const embedding = Array.isArray(doc.embedding) ? doc.embedding.join(", ") : "N/A";
-        html += `
+  // Update renderMongoDocsList to remove the header (since it’s now static above)
+  function renderMongoDocsList() {
+    const docListDiv = document.getElementById("doc-list-container");
+    if (!docListDiv) return;
+    const mongoDocs = model.get("mongo_docs_table") || [];
+    if (!mongoDocs.length) {
+      docListDiv.innerHTML = "<p>No documents loaded yet.</p>";
+      return;
+    }
+    let html = "<div class='doc-card-container'>";
+    mongoDocs.forEach((doc) => {
+      const embedding = Array.isArray(doc.embedding) ? doc.embedding.join(", ") : "N/A";
+      html += `
           <div class="doc-card">
             <div><span class="doc-key">_id:</span> <span class="doc-value doc-value-id">${doc._id}</span></div>
             <div><span class="doc-key">text:</span> <span class="doc-value doc-value-text">${doc.text}</span></div>
             <div><span class="doc-key">embedding:</span> <span class="doc-value doc-value-embedding">[${embedding}]</span></div>
           </div>
         `;
-      });
-      html += "</div>";
-      docListDiv.innerHTML = html;
-    }
+    });
+    html += "</div>";
+    docListDiv.innerHTML = html;
+  }
 
   function renderRAGResults() {
     const results = model.get("rag_results") || [];
@@ -464,13 +471,23 @@ function render({ model, el }) {
     const contextStr = results.map((r) => r.content).join("\n\n");
     let finalPrompt = template.replace("{context}", contextStr).replace("{question}", question);
     if (contextStr.trim()) {
-      const escapedContext = escapeHtml(contextStr);
-      finalPrompt = finalPrompt.replace(contextStr, `<span class="green-doc-text">${escapedContext}</span>`);
+      finalPrompt = finalPrompt.replace(contextStr, `${contextStr}`);
     }
-    let html = "<h4>Final Prompt Used</h4>";
-    html += `<pre>${finalPrompt}</pre>`;
+    // find the container
     const promptDivLocal = document.getElementById("rag-prompt");
-    if (promptDivLocal) promptDivLocal.innerHTML = html;
+    if (promptDivLocal) {
+      // clear any previous HTML
+      promptDivLocal.innerHTML = "";
+      // create heading
+      const heading = document.createElement("h4");
+
+      // create <pre> and set textContent so tags show literally
+      const pre = document.createElement("pre");
+      pre.textContent = finalPrompt;
+      // append to container
+      promptDivLocal.appendChild(heading);
+      promptDivLocal.appendChild(pre);
+    }
     model.set("rag_prompt", finalPrompt);
     model.save_changes();
   }

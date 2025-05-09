@@ -18,7 +18,7 @@ Built as a set of [AnyWidget](https://anywidget.dev/) Jupyter widgets, this play
 ## Features
 
 - 📄 **Document Chunking**: Flexible strategies (fixed, recursive, markdown) for splitting documents.
-- 🧠 **Embeddings & Vector Search**: Store and search embeddings in MongoDB Atlas using [langchain-mongodb](https://github.com/mongodb-developer/langchain-mongodb).
+- 🧠 **Embeddings & Vector Search**: Store and search embeddings in MongoDB Atlas using [langchain-mongodb](https://github.com/langchain-ai/langchain-mongodb).
 - 🔎 **RAG Playground UI**: Step-by-step interface for chunking, embedding, and querying.
 - 🕸️ **Knowledge Graph RAG**: Build and visualize entity/relation graphs from docs and run graph-based QA.
 - 🧩 **Extensible**: Built for experimentation with LangChain so that you can use different loaders, embeddings models, LLMs and more.
