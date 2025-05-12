@@ -263,7 +263,7 @@ function render({ model, el }) {
   const docHeaderContainer = createElement("div", {
     style: { display: "flex", alignItems: "center", justifyContent: "space-between" }
   });
-  const docsHeader = createElement("h4", { innerHTML: "Documents in MongoDB", className: "section-titles" });
+  const docsHeader = createElement("h4", { innerHTML: "Documents in MongoDB" });
   const loadButton = createButton("Load into MongoDB", "action-button");
   loadButton.id = "loadButton";
   loadButton.addEventListener("click", () => {
@@ -296,13 +296,13 @@ function render({ model, el }) {
   });
 
   const leftCol = createElement("div", {
-    style: { flex: "1 1 0%", display: "flex", flexDirection: "column" },
+    style: { flex: "1 1 0%", display: "flex", flexDirection: "column", minWidth: "0" },
   });
   // move the QA heading inside the left column so it sits level with the right column's header
   const ragTitle = createElement("h4", { innerHTML: "Question" });
   leftCol.appendChild(ragTitle);
   const rightCol = createElement("div", {
-    style: { flex: "1 1 0%" },
+    style: { flex: "1 1 0%", minWidth: "0" },
   });
   // Question Input & Send Button
   const questionContainer = createElement("div");
@@ -342,8 +342,10 @@ function render({ model, el }) {
   promptTemplateContainer.appendChild(promptEditor);
 
   // Final Prompt Display (container only)
-  const finalPromptContainer = createElement("div");
-  finalPromptContainer.id = "final-prompt-container";
+  const finalPromptContainer = createElement("div", {
+    id: "final-prompt-container",
+    style: { flex: "1 1 auto", maxHeight: "300px", overflowY: "auto" },
+  });
   const promptDiv = createElement("div", { id: "rag-prompt" });
   finalPromptContainer.appendChild(promptDiv);
 

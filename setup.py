@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="mongodb_ai_playground",
-    version="0.0.7",
+    version="0.0.9",
     author="Thibaut Gourdel",
     author_email="thibaut.gourdel@mongodb.com",
     description="A playground for building RAG applications with MongoDB and Langchain",

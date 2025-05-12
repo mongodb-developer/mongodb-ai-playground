@@ -67,7 +67,7 @@
 #embedding-section,
 #rag-section {
   display: flex;
-  gap: 2rem;
+  gap: 3rem;
   /*height: 500px; /* Example fixed height */
   font-family: 'Euclid Circular A', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
@@ -366,9 +366,18 @@ textarea:focus {
   border-radius: 8px;
   padding: 1rem;
   max-height: 300px;
-  width: 50%;
+  width: 100% !important; 
   background: #fff;
   white-space: pre-wrap;
+}
+
+#rag-results { min-width: 0; }
+
+
+#final-prompt-container pre {
+  white-space: pre-wrap;
+  word-break: break-word;        /* break long tokens that were forcing the column wider */
+  overflow-wrap: anywhere;
 }
 
 .loader {
