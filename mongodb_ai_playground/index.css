@@ -2,11 +2,50 @@
 
 
 #mongodb-ai-playground {
-  height: 770px;           /* or whatever fixed height you want */
+  height: 800px;           /* or whatever fixed height you want */
   display: flex;
   flex-direction: column;
-  overflow: hidden;        /* prevent accidental overflow */
+  overflow: hidden;
+  position: relative;
 }
+
+.content-wrapper {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 10px;
+}
+
+/* Error alert at the bottom */
+#error-alert, .alert.alert-danger {
+  flex-shrink: 0;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+/* Ensure error box is always visible above content */
+#error-alert {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #dc3545;
+  border-radius: 8px;
+  font-weight: bold;
+  display: none;
+  padding: 10px;
+  min-height: 40px;
+  max-height: 90px;
+  overflow-y: auto;
+}
+
+#error-alert[style*="display: block"] {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
 
 #mongodb-ai-playground > .sub-tabs-nav,
 #mongodb-ai-playground > .steps-nav {
@@ -40,7 +79,7 @@
   justify-content: flex-start;
   list-style: none;
   padding: 0;
-  margin: 20px 0 5px 0;
+  /* margin: 20px 0 5px 0; */
   border-bottom: 3px solid #c1c7c6;
 
 }
@@ -115,7 +154,6 @@ select {
 
 button {
     background: #00684A;
-    border-radius: 6px;
     border: 1px solid #00684A;
     color: #FFFFFF;
     display: inline-block;
@@ -157,14 +195,9 @@ textarea:focus {
 }
 
 /* Error message */
+/* .error-message not used for new error box, but keep for legacy */
 .error-message {
-  padding: 1rem;
-  margin: 1rem 0;
-  background-color: #ffcccc;
-  color: #a00;
-  border: 1px solid #a00;
-  border-radius: 0.25rem;
-  font-weight: bold;
+  display: none;
 }
 
 /* Settings controls */
@@ -333,6 +366,36 @@ textarea:focus {
   border-radius: 8px;
   padding: 1rem;
   max-height: 300px;
+  width: 50%;
   background: #fff;
   white-space: pre-wrap;
+}
+
+.loader {
+  border: 5px solid #f3f3f3; /* Light grey */
+  border-top: 5px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 2s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading {
+  color: #888888;
+}
+
+.section-titles {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #889397;
+  font-size: 9px;
+  padding-right: 9px;
+  margin-top: 0px;
+  margin-bottom: 1rem; 
 }

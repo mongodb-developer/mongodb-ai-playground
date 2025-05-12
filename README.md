@@ -9,7 +9,8 @@ MongoDB AI Playground is a set of interactive widgets to explore, test, and visu
 The **MongoDB AI Playground** provides interactive widgets for experimenting with advanced AI capabilities on MongoDB, including:
 
 - **RAG (Retrieval-Augmented Generation)**: Chunk, embed, store, and query documents using MongoDB Atlas Vector Search and LLMs.
-- **Graph RAG**: Ingest documents as knowledge graphs, visualize relationships, and perform graph-based question answering using LLMs and MongoDB.
+
+![Screenshot MongoDB AI Playground](assets/screenshot1.png)
 
 Built as a set of [AnyWidget](https://anywidget.dev/) Jupyter widgets, this playground is designed for rapid prototyping, learning, and demonstration of GenAI + MongoDB workflows.
 
@@ -27,6 +28,12 @@ Built as a set of [AnyWidget](https://anywidget.dev/) Jupyter widgets, this play
 
 ## Installation
 
+3. Pre-requisites
+- An [**Atlas account**](https://account.mongodb.com/account/register?tck=docs_atlas) with a cluster running **MongoDB version 6.0.11**, **7.0.2**, or later (including release candidates). Ensure your **IP address** is included in your Atlas project's [**access list**](https://www.mongodb.com/docs/atlas/security/ip-access-list/#std-label-access-list). To learn more, see [**Create a Cluster**](https://www.mongodb.com/docs/atlas/tutorial/create-new-cluster/#std-label-create-new-cluster).
+- An environment to run interactive Python notebooks such as JupyterLab, Jupyter Notebook, Google Colab and VSCode. Make sure you have widget support enabled.
+- Create a database and collection (:warning: if you choose to use an existing collection, usage with the playground will erase the collection's data. Providing a new collection is recommended)
+-  [**Create an Atlas Vector Search index**](https://www.mongodb.com/docs/compass/current/indexes/create-vector-search-index/) with the correct dimension associated with the embedding model you will use. The field containing the embedding must be named **`embedding`**.
+
 1. **Install dependencies:**
 
 ```bash
@@ -35,15 +42,11 @@ pip install mongodb-ai-playground
 
 The mongodb-ai-playground depends on the following Python libraries: `anywidget`, `ipywidgets`, `langchain`, `langchain-mongodb`, and `pymongo`.
 
-2. **Enable Jupyter Widgets:**
-
-Make sure you have JupyterLab or Jupyter Notebook with widget support enabled.
-
 ---
 
 ## Usage
 
-### 1. RAG Playground
+### RAG Playground
 
 ```python
 from mongodb_ai_playground import MongoDBRAGPlayground
@@ -54,7 +57,7 @@ widget = MongoDBRAGPlayground(
     embedding_model=...,     # LangChain embedding model 
     llm=...,                 # LangChain Chat Model (LLM) for answering questions (OpenAI, Claude, DeepSeek, etc.)
     mongo_collection=...,    # PyMongo collection for storing vectors
-    index_name=...           # Name of your Atlas Vector Search index
+    index_name=...           # Name of your Atlas Vector Search index, you need to create if you don't have one, with the correct dimension (field containing the embedding is 'embedding')
 )
 widget # Display the playground widget
 ```

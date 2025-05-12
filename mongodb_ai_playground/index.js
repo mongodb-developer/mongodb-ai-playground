@@ -1,4 +1,19 @@
 // index.js
+
+// Global error management
+let errorBox = null;
+
+function showError(message) {
+  if (!errorBox) return;
+  if (message && message.length > 0) {
+    errorBox.innerHTML = message;
+    errorBox.style.display = "block";
+  } else {
+    errorBox.innerHTML = "";
+    errorBox.style.display = "none";
+  }
+}
+
 function createElement(tag, { id, className, innerHTML, style } = {}) {
   const el = document.createElement(tag);
   if (id) el.id = id;
@@ -63,15 +78,20 @@ function createSelectControl({ labelText, options, selectedValue, onChange }) {
 function render({ model, el }) {
   // Clear container
   el.id = "mongodb-ai-playground";
-
   el.innerHTML = "";
+
+  // Create a wrapper for all content except error box
+  const contentWrapper = createElement("div", { className: "content-wrapper" });
+  el.appendChild(contentWrapper);
 
   //------------------------------------------------------------
   // Top-Level Tabs
   //------------------------------------------------------------
   const topTabs = [{ name: "RAG", value: 1 }];
   const { nav: topNav, buttons: topButtons } = createNavBar(topTabs, "steps-nav");
-  el.appendChild(topNav);
+  contentWrapper.appendChild(topNav);
+
+  // Error Alert Box will be appended as the last child (bottom of widget)
 
   //------------------------------------------------------------
   // Sub-Tabs
@@ -91,6 +111,36 @@ function render({ model, el }) {
 
   const textMqlTabs = [{ name: "test", value: 1 }];
   const { nav: textMqlSubNav, buttons: textMqlSubButtons } = createNavBar(textMqlTabs, "sub-tabs-nav");
+
+  //------------------------------------------------------------
+  // Error Alert Box - After Sub-Tabs
+  //------------------------------------------------------------
+  const errorContainer = createElement("div", {
+    style: {
+      width: "100%",
+      marginTop: "10px",
+      marginBottom: "10px"
+    }
+  });
+  
+  errorBox = createElement("div", { 
+    id: "error-alert", 
+    className: "alert alert-danger", 
+    innerHTML: "",
+    style: { 
+      display: "none", 
+      padding: "10px", 
+      border: "1px solid #dc3545", 
+      borderRadius: "8px",
+      backgroundColor: "#f8d7da", 
+      color: "#721c24",
+      fontWeight: "bold",
+      height: "60px",
+      overflowY: "auto"
+    } 
+  });
+  
+  errorContainer.appendChild(errorBox);
 
   //------------------------------------------------------------
   // RAG Sections & Subsections
@@ -183,7 +233,7 @@ function render({ model, el }) {
   const embeddingSection = createSection("embedding-section", "none");
   ragContainer.appendChild(embeddingSection);
   const embeddingContainer = createElement("div", { style: { display: "flex", gap: "2rem" } });
-  const chunkListDiv = createElement("div", { style: { flex: "1" }, innerHTML: "<h4>Chunks</h4>" });
+  const chunkListDiv = createElement("div", { style: { flex: "1" }, innerHTML: "<h4 class='section-titles'>Chunks</h4>" });
   embeddingContainer.appendChild(chunkListDiv);
   // Pagination controls for embedding tab
   const embeddingPaginationDiv = createElement("div", { id: "embedding-pagination-controls" });
@@ -213,7 +263,7 @@ function render({ model, el }) {
   const docHeaderContainer = createElement("div", {
     style: { display: "flex", alignItems: "center", justifyContent: "space-between" }
   });
-  const docsHeader = createElement("h4", { innerHTML: "Documents in MongoDB" });
+  const docsHeader = createElement("h4", { innerHTML: "Documents in MongoDB", className: "section-titles" });
   const loadButton = createButton("Load into MongoDB", "action-button");
   loadButton.id = "loadButton";
   loadButton.addEventListener("click", () => {
@@ -246,13 +296,14 @@ function render({ model, el }) {
   });
 
   const leftCol = createElement("div", {
-    style: { flex: "1", display: "flex", flexDirection: "column" },
+    style: { flex: "1 1 0%", display: "flex", flexDirection: "column" },
   });
   // move the QA heading inside the left column so it sits level with the right column's header
   const ragTitle = createElement("h4", { innerHTML: "Question" });
   leftCol.appendChild(ragTitle);
-  const rightCol = createElement("div", { style: { flex: "1" } });
-
+  const rightCol = createElement("div", {
+    style: { flex: "1 1 0%" },
+  });
   // Question Input & Send Button
   const questionContainer = createElement("div");
   const ragQueryArea = createElement("textarea", {
@@ -514,8 +565,8 @@ function render({ model, el }) {
     setActiveTabButtons(topButtons, mainTab, topTabs, "main_tab");
 
     if (mainTab === 1) {
-      el.appendChild(ragSubNav);
-      el.appendChild(ragContainer);
+      contentWrapper.appendChild(ragSubNav);
+      contentWrapper.appendChild(ragContainer);
       const ragSub = model.get("rag_sub_tab") || 1;
       setActiveTabButtons(ragSubButtons, ragSub, ragTabs, "rag_sub_tab");
 
@@ -533,18 +584,23 @@ function render({ model, el }) {
         renderRAGAnswer();
       }
     } else if (mainTab === 2) {
-      el.appendChild(graphRAGSubNav);
-      el.appendChild(graphRagContainer);
+      contentWrapper.appendChild(graphRAGSubNav);
+      contentWrapper.appendChild(graphRagContainer);
       const gSub = model.get("graph_rag_sub_tab") || 1;
       setActiveTabButtons(graphRagSubButtons, gSub, graphRagTabs, "graph_rag_sub_tab");
       knowledgeGraphSection.style.display = gSub === 1 ? "block" : "none";
       graphRagQaSection.style.display = gSub === 2 ? "block" : "none";
     } else {
-      el.appendChild(textMqlSubNav);
-      el.appendChild(textMqlContainer);
+      contentWrapper.appendChild(textMqlSubNav);
+      contentWrapper.appendChild(textMqlContainer);
       const tSub = model.get("text_mql_sub_tab") || 1;
       setActiveTabButtons(textMqlSubButtons, tSub, textMqlTabs, "text_mql_sub_tab");
       textMqlTestSection.style.display = tSub === 1 ? "block" : "none";
+    }
+
+    // ensure error box shows at the bottom of the widget
+    if (!document.getElementById("error-alert")) {
+      el.appendChild(errorContainer);
     }
   }
 
@@ -595,6 +651,23 @@ function render({ model, el }) {
   model.on("change:rag_prompt", renderRAGPrompt);
   model.on("change:rag_answer", renderRAGAnswer);
 
+  // Listen for changes to the error traitlet
+  // Listen for error changes from the model
+  model.on("change:error", () => {
+    const error = model.get("error");
+    showError(error);
+  });
+  
+  // Also check for custom messages
+  model.on("msg:custom", (event) => {
+    if (event.type === "update_error") {
+      showError(event.error);
+    }
+  });
+
+  //------------------------------------------------------------
+  // Error Alert Box will be added after the tabs
+
   //------------------------------------------------------------
   // Initial Setup
   //------------------------------------------------------------
@@ -609,6 +682,7 @@ function render({ model, el }) {
     renderRAGPrompt();
     renderRAGAnswer();
   }
+
 }
 
 export default { render };

@@ -13,8 +13,8 @@ from langchain_core.runnables import RunnablePassthrough
 current_directory = pathlib.Path().resolve()
 
 class MongoDBRAGPlayground(anywidget.AnyWidget):
-    _esm = pathlib.Path(__file__).parent / "index.js"
-    _css = pathlib.Path(__file__).parent / "index.css"
+    _esm = str(pathlib.Path(__file__).parent / "index.js")
+    _css = str(pathlib.Path(__file__).parent / "index.css")
 
     # Which step is selected in the UI (1=Chunking, 2=Embedding, 3=RAG)
     current_step = traitlets.Int(1).tag(sync=True)
@@ -48,6 +48,23 @@ class MongoDBRAGPlayground(anywidget.AnyWidget):
     command = traitlets.Unicode("").tag(sync=True)
     error = traitlets.Unicode("").tag(sync=True)
 
+    def set_error(self, message):
+        """Set an error message and ensure it's sent to the frontend"""
+        if message:
+            self.error = message
+            # Send via both mechanisms to ensure it's displayed
+            self.send({"type": "update_error", "error": message})
+            print(f"Error: {message}")  # Also log to console for debugging
+
+    def clear_error(self):
+        """Clear any error messages"""
+        self.error = ""
+        self.send({"type": "update_error", "error": ""})
+        
+    def test_error(self, message="This is a test error message"):
+        """Function to test the error display system"""
+        self.set_error(message)
+
     def __init__(self, loader=None, embedding_model=None, llm=None,
         mongo_collection=None, index_name=None, **kwargs):
         """
@@ -66,15 +83,18 @@ class MongoDBRAGPlayground(anywidget.AnyWidget):
             self.selected_index = index_name
 
         # Attempt to load documents
-        if self.loader:
-            try:
-                docs = self.loader.load()
-                self.loaded_pages = [doc.page_content for doc in docs]
-            except Exception as e:
-                self.loaded_pages = []
-                self.error = f"Error loading document: {e}"
-        else:
+        # allow either a LangChain loader or a pre-loaded list of Document objects
+        try:
+            if hasattr(loader, "load"):
+                docs = loader.load()
+            elif isinstance(loader, list):
+                docs = loader
+            else:
+                docs = []
+            self.loaded_pages = [doc.page_content for doc in docs]
+        except Exception as e:
             self.loaded_pages = []
+            self.set_error(f"Error loading document: {e}")
 
         # Internal storage of split text per page
         self.chunks_by_page = []
@@ -238,11 +258,11 @@ class MongoDBRAGPlayground(anywidget.AnyWidget):
                 idx_info = self.mongo_collection.index_information()
                 self.vector_indexes = list(idx_info.keys())
             else:
-                self.error = f"Error fetching search indexes: {e}"
+                self.set_error(f"Error fetching search indexes: {e}")
                 self.vector_indexes = []
 
         if self.selected_index and self.selected_index not in self.vector_indexes:
-            self.error = f"Error: Provided vector index '{self.selected_index}' does not exist."
+            self.set_error(f"Error: Provided vector index '{self.selected_index}' does not exist.")
 
     def _build_embeddings_table(self):
         data = []
@@ -283,7 +303,7 @@ class MongoDBRAGPlayground(anywidget.AnyWidget):
         # 2 – sanity‑check the insert
         inserted = len(texts)
         total_in_db = self.mongo_collection.count_documents({})
-        print(f"{inserted} chunks inserted – collection now holds {total_in_db} docs")
+        # print(f"{inserted} chunks inserted – collection now holds {total_in_db} docs")
 
         # 3 – build a preview table (OPTIONAL: keep the slice if your UI bogs down)
         preview_cursor = self.mongo_collection.find(
@@ -305,18 +325,15 @@ class MongoDBRAGPlayground(anywidget.AnyWidget):
     # -----------------
     def run_rag(self):
         if not self.selected_index:
-            self.error = "No vector index was specified."
-            print(self.error)
+            self.set_error("No vector index was specified.")
             return
         if not self.embedding_model:
-            self.error = "No embedding model provided."
-            print(self.error)
+            self.set_error("No embedding model provided.")
             return
     
         query = self.rag_query.strip()
         if not query:
-            self.error = "No query provided."
-            print(self.error)
+            self.set_error("No query provided.")
             return
     
         try:
@@ -330,14 +347,14 @@ class MongoDBRAGPlayground(anywidget.AnyWidget):
     
             # 2) Retrieve docs with scores using similarity search
             docs_with_scores = vector_store.similarity_search_with_score(query, k=5)
-            print("Number of retrieved docs:", len(docs_with_scores))
+            # print("Number of retrieved docs:", len(docs_with_scores))
     
             rag_data = []
             for i, (doc, score) in enumerate(docs_with_scores):
-                print(f"---- Document #{i} ----")
-                print("Document Content (truncated to 200 chars):", doc.page_content[:200], "...")
-                print("Metadata:", doc.metadata)
-                print("Similarity Score:", score)
+                # print(f"---- Document #{i} ----")
+                # print("Document Content (truncated to 200 chars):", doc.page_content[:200], "...")
+                # print("Metadata:", doc.metadata)
+                # print("Similarity Score:", score)
     
                 rag_data.append({
                     "score": float(score),
@@ -352,8 +369,8 @@ class MongoDBRAGPlayground(anywidget.AnyWidget):
             template = self.rag_prompt_template  # Use user-editable prompt template here
             prompt = ChatPromptTemplate.from_template(template)
             prompt_message = prompt.format_prompt(context=context_str, question=query)
-            print("Final prompt message sent to LLM:")
-            print(prompt_message.to_messages())
+            # print("Final prompt message sent to LLM:")
+            # print(prompt_message.to_messages())
     
             model = self.llm
             parse_output = StrOutputParser()
@@ -363,9 +380,8 @@ class MongoDBRAGPlayground(anywidget.AnyWidget):
             } | prompt | model | parse_output
     
             answer = naive_rag_chain.invoke(query)
-            print("Generated answer:", answer)
+            #print("Generated answer:", answer)
             self.rag_answer = answer
     
         except Exception as e:
-            self.error = f"RAG Error: {e}"
-            print(self.error)
+            self.set_error(f"RAG Error: {e}")
