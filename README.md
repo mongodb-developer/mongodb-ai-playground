@@ -1,6 +1,6 @@
 # MongoDB AI Playground
 
-MongoDB AI Playground is a set of interactive widgets to explore, test, and visualize MongoDB-powered AI capabilities, including Retrieval-Augmented Generation (RAG) and GraphRAG workflows, using modern LLM and vector search integrations.
+MongoDB AI Playground is a set of interactive widgets for to explore, test, and visualize MongoDB-powered AI capabilities in notebooks, including Retrieval-Augmented Generation (RAG) and GraphRAG workflows, using modern LLM and vector search integrations.
 
 ---
 
@@ -10,25 +10,18 @@ MongoDB AI Playground is a set of interactive widgets to explore, test, and visu
 
 Built as a set of [AnyWidget](https://anywidget.dev/) Jupyter widgets, this playground is designed for rapid prototyping, learning, and demonstration of GenAI + MongoDB workflows.
 
-## Installation
+## Prerequisites
 
-1. Pre-requisites
 - An [**Atlas account**](https://account.mongodb.com/account/register?tck=docs_atlas) with a cluster running **MongoDB version 6.0.11**, **7.0.2**, or later (including release candidates). Ensure your **IP address** is included in your Atlas project's [**access list**](https://www.mongodb.com/docs/atlas/security/ip-access-list/#std-label-access-list). To learn more, see [**Create a Cluster**](https://www.mongodb.com/docs/atlas/tutorial/create-new-cluster/#std-label-create-new-cluster).
 - An environment to run interactive Python notebooks such as JupyterLab, Jupyter Notebook, Google Colab and VSCode. Make sure you have widget support enabled.
 - Create a database and collection (:warning: if you choose to use an existing collection, usage with the playground will erase the collection's data. Providing a new collection is recommended)
--  [**Create an Atlas Vector Search index**](https://www.mongodb.com/docs/compass/current/indexes/create-vector-search-index/) with the correct dimension associated with the embedding model you will use. The field containing the embedding must be named **`embedding`**.
+- [**Create an Atlas Vector Search index**](https://www.mongodb.com/docs/compass/current/indexes/create-vector-search-index/) with the correct dimension associated with the embedding model you will use. The field containing the embedding must be named **`embedding`**.
 
-2. **Install dependencies:**
+## Installation
 
 ```bash
 pip install mongodb-ai-playground
 ```
-
-The mongodb-ai-playground depends on the following Python libraries: `anywidget`, `ipywidgets`, `langchain`, `langchain-mongodb`, and `pymongo`.
-
----
-
-Full examples
 
 ## Usage
 
