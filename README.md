@@ -42,7 +42,14 @@ widget # Display the playground widget
 ```
 
 - All interactions are performed via the interactive UI in Jupyter-compatible environments.
-- Visualize chunking, embeddings, vector search results, and knowledge graphs.
+- Visualize chunking, embeddings, vector search results, and question answering.
+
+Notebook examples
+
+| Description                                        | Link                                                                                                                                                      |
+|----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Wikipedia data + Voyage AI embedding + OpenAI LLM | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/mongodb-developer/mongodb-ai-playground/blob/main/examples/mongodb_rag_playground_wiki_voyageai_openai.ipynb) |
+
 
 ## Features
 
