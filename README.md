@@ -13,8 +13,8 @@ Built as a set of [AnyWidget](https://anywidget.dev/) Jupyter widgets, this play
 ## Prerequisites
 
 - An [**Atlas account**](https://account.mongodb.com/account/register?tck=docs_atlas) with a cluster running **MongoDB version 6.0.11**, **7.0.2**, or later (including release candidates). Ensure your **IP address** is included in your Atlas project's [**access list**](https://www.mongodb.com/docs/atlas/security/ip-access-list/#std-label-access-list). To learn more, see [**Create a Cluster**](https://www.mongodb.com/docs/atlas/tutorial/create-new-cluster/#std-label-create-new-cluster).
-- An environment to run interactive Python notebooks such as JupyterLab, Jupyter Notebook, Google Colab and VSCode. Make sure you have widget support enabled.
-- Create a database and collection (:warning: if you choose to use an existing collection, usage with the playground will erase the collection's data. Providing a new collection is recommended)
+- An environment to run interactive Python notebooks such as JupyterLab, Jupyter Notebook, Google Colab and VSCode. Make sure you have widget support enabled (it is enabled by default on most platforms).
+- Create a database and collection (if you choose to use an existing collection, usage with the playground will erase the collection's data. Providing a new collection is recommended)
 - [**Create an Atlas Vector Search index**](https://www.mongodb.com/docs/compass/current/indexes/create-vector-search-index/) with the correct dimension associated with the embedding model you will use. The field containing the embedding must be named **`embedding`**.
 
 ## Installation
